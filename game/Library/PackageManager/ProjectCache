@@ -5,7 +5,7 @@ m_ProjectFiles:
     m_ContentTrackingEnabled: 1
     m_ModificationDate:
       serializedVersion: 2
-      ticks: 639092581473434226
+      ticks: 639092634707218447
     m_Hash: 4139947129
   m_LockFileStatus:
     m_FilePath: "D:/\u6587\u6863/GitHub/first-game/game/Packages/packages-lock.json"
@@ -13,7 +13,7 @@ m_ProjectFiles:
     m_ContentTrackingEnabled: 1
     m_ModificationDate:
       serializedVersion: 2
-      ticks: 639092581473476412
+      ticks: 639092634707271888
     m_Hash: 1868233727
 m_EmbeddedPackageManifests:
   m_ManifestsStatus: {}
