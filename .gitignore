@@ -15,6 +15,7 @@
 *.userprefs
 
 # 系统隐藏文件
+.vs/
 .DS_Store
 Thumbs.db
 game/Library/ArtifactDB
