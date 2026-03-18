@@ -8,7 +8,10 @@ public class PlayerMovement3D : MonoBehaviour
 
     [Header("跳跃设置")]
     public float jumpForce = 7f;
-    public bool isGrounded; // 可在Inspector查看是否在地面
+    public bool isGrounded;
+
+    [Header("相机视角")]
+    public Camera mainCamera;
 
     private Rigidbody _rb;
     private Vector3 _moveDir;
@@ -16,20 +19,26 @@ public class PlayerMovement3D : MonoBehaviour
     protected virtual void Awake()
     {
         _rb = GetComponent<Rigidbody>();
-        _rb.useGravity = true;       // 使用Unity自带重力
-        _rb.freezeRotation = true;   // 禁止旋转摔倒
+        _rb.useGravity = true;
+        _rb.freezeRotation = true;
+
+        if (mainCamera == null)
+            mainCamera = Camera.main;
     }
 
     protected virtual void Update()
     {
-        // 立即获取输入
         float h = Input.GetAxisRaw("Horizontal");
         float v = Input.GetAxisRaw("Vertical");
 
-        // XZ平面移动方向
-        _moveDir = new Vector3(h, 0, v).normalized;
+        // 原始输入
+        Vector3 input = new Vector3(h, 0, v).normalized;
 
-        // 跳跃检测
+        // ==========================================
+        // 只加了这一个方法：按相机视角转换方向
+        _moveDir = GetCameraRelativeMoveDir(input);
+        // ==========================================
+
         if (Input.GetButtonDown("Jump") && isGrounded)
         {
             Jump();
@@ -38,18 +47,15 @@ public class PlayerMovement3D : MonoBehaviour
 
     protected virtual void FixedUpdate()
     {
-        // 物理移动：保持Y轴速度，只控制XZ
         Vector3 moveVelocity = _moveDir * moveSpeed;
         _rb.velocity = new Vector3(moveVelocity.x, _rb.velocity.y, moveVelocity.z);
     }
 
-    // 跳跃逻辑
     private void Jump()
     {
         _rb.velocity = new Vector3(_rb.velocity.x, jumpForce, _rb.velocity.z);
     }
 
-    // 地面检测
     private void OnCollisionStay(Collision collision)
     {
         isGrounded = true;
@@ -58,5 +64,28 @@ public class PlayerMovement3D : MonoBehaviour
     private void OnCollisionExit(Collision collision)
     {
         isGrounded = false;
+    }
+
+    // ==========================================
+    // 新增：相机视角移动方法（源代码几乎没改）
+    // ==========================================
+    protected virtual Vector3 GetCameraRelativeMoveDir(Vector3 input)
+    {
+        if (mainCamera == null || input.magnitude < 0.01f)
+            return Vector3.zero;
+
+        Vector3 f = mainCamera.transform.forward;
+        Vector3 r = mainCamera.transform.right;
+        f.y = 0; r.y = 0;
+        f.Normalize(); r.Normalize();
+
+        Vector3 dir = r * input.x + f * input.z;
+        if (dir.magnitude > 0.1f)
+        {
+            // 角色面朝移动方向
+            transform.forward = dir;
+        }
+
+        return dir.normalized;
     }
 }
