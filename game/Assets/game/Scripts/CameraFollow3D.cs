@@ -7,7 +7,7 @@ public class CameraFollow3D : MonoBehaviour
 
     [Header("基础跟随")]
     public Vector3 offset = new Vector3(0, 5, -10);
-    public float followSpeed = 30f; // 提高到30，保证跟手但不抖
+    public float followSpeed = 30f;
 
     [Header("鼠标视角控制")]
     public float mouseSensitivity = 2f;
@@ -23,7 +23,6 @@ public class CameraFollow3D : MonoBehaviour
     {
         if (player == null) return;
 
-        // 核心修复：强制让相机使用刚体上一帧的平滑位置
         Vector3 targetPos = player.position;
 
         if (isFreeCamera)
@@ -35,13 +34,13 @@ public class CameraFollow3D : MonoBehaviour
             Quaternion rotation = Quaternion.Euler(pitch, yaw, 0);
             targetPos += rotation * offset;
 
-            transform.position = targetPos; // 直接赋值，不再平滑
+            transform.position = targetPos;
             transform.LookAt(player.position + Vector3.up * 1.5f);
         }
         else
         {
             targetPos += offset;
-            transform.position = targetPos; // 直接赋值
+            transform.position = targetPos;
             transform.LookAt(player.position + Vector3.up * 1.5f);
         }
     }
