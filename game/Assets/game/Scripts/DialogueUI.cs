@@ -1,77 +1,80 @@
 using System.Collections;
 using UnityEngine;
 using TMPro;
+using UnityEngine.UI;
 
 public class DialogueUI : MonoBehaviour
 {
     public static DialogueUI Instance;
 
-    [Header("UI引用")]
     public GameObject dialoguePanel;
+    public Image headImage;
     public TextMeshProUGUI dialogueText;
+    public float typeSpeed = 0.04f;
 
-    [Header("打字效果速度")]
-    public float typeSpeed = 0.03f;
-
-    private string[] currentLines;
+    private string[] lines;
     private int lineIndex;
     private bool isTyping;
 
     void Awake()
     {
         Instance = this;
+        dialoguePanel.SetActive(false);
     }
 
     void Update()
     {
-        // 正在打字时按空格/鼠标直接显示完
+        if (!dialoguePanel.activeSelf) return;
+
         if (isTyping)
         {
             if (Input.GetMouseButtonDown(0) || Input.GetKeyDown(KeyCode.Space))
             {
                 StopAllCoroutines();
-                dialogueText.text = currentLines[lineIndex];
+                dialogueText.text = lines[lineIndex - 1];
                 isTyping = false;
             }
             return;
         }
 
-        // 下一句
-        if (dialoguePanel.activeSelf &&
-            (Input.GetMouseButtonDown(0) || Input.GetKeyDown(KeyCode.Space)))
+        if (Input.GetMouseButtonDown(0) || Input.GetKeyDown(KeyCode.Space))
         {
+            // 按空格/鼠标时，先结束对话，同时清空输入缓存
+            Input.ResetInputAxes();
             NextLine();
         }
     }
 
-    // 开始对话
-    public void ShowDialogue(string[] lines)
+    public void StartDialogue(Interactable npc)
     {
-        currentLines = lines;
+        lines = npc.dialogueLines;
         lineIndex = 0;
+
+        if (npc.npcHead != null)
+            headImage.sprite = npc.npcHead;
+
         dialoguePanel.SetActive(true);
         NextLine();
     }
 
-    // 下一句
     void NextLine()
     {
-        if (lineIndex >= currentLines.Length)
+        if (lineIndex >= lines.Length)
         {
             EndDialogue();
             return;
         }
 
-        StartCoroutine(TypeText(currentLines[lineIndex]));
+        StopAllCoroutines();
+        StartCoroutine(TypeText(lines[lineIndex]));
         lineIndex++;
     }
 
-
-    IEnumerator TypeText(string line)
+    IEnumerator TypeText(string str)
     {
         isTyping = true;
         dialogueText.text = "";
-        foreach (char c in line)
+        foreach (char c in str)
         {
             dialogueText.text += c;
             yield return new WaitForSeconds(typeSpeed);
@@ -79,9 +82,9 @@ public class DialogueUI : MonoBehaviour
         isTyping = false;
     }
 
-    // 结束对话
     void EndDialogue()
     {
         dialoguePanel.SetActive(false);
+        PlayerMovement3D.canMove = true;
     }
 }

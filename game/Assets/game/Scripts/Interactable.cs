@@ -2,31 +2,45 @@ using UnityEngine;
 
 public class Interactable : MonoBehaviour
 {
+    [Header("提示文字")]
+    public string tipText;
+
     [Header("对话内容")]
+    public Sprite npcHead;
     [TextArea] public string[] dialogueLines;
 
-    private bool isInRange;
+    [Header("任务")]
+    public bool giveTask;
+    public string taskName;
+
+    private bool inRange;
 
     void Update()
     {
-        // 在范围 + 按E
-        if (isInRange && Input.GetKeyDown(KeyCode.E))
+        if (inRange && Input.GetKeyDown(KeyCode.E))
         {
-            DialogueUI.Instance.ShowDialogue(dialogueLines);
+            TipUI.Instance.HideTip();
+
+            DialogueUI.Instance.StartDialogue(this);
+            PlayerMovement3D.canMove = false;
         }
     }
 
-    // 玩家进入范围
     void OnTriggerEnter(Collider other)
     {
         if (other.CompareTag("Player"))
-            isInRange = true;
+        {
+            inRange = true;
+            TipUI.Instance.ShowTip(tipText);
+        }
     }
 
-    // 玩家离开范围
     void OnTriggerExit(Collider other)
     {
         if (other.CompareTag("Player"))
-            isInRange = false;
+        {
+            inRange = false;
+            TipUI.Instance.HideTip();
+        }
     }
 }

@@ -13,6 +13,9 @@ public class PlayerMovement3D : MonoBehaviour
     [Header("相机视角")]
     public Camera mainCamera;
 
+    // 对话时禁止移动
+    public static bool canMove = true;
+
     private Rigidbody _rb;
     private Vector3 _moveDir;
 
@@ -28,14 +31,18 @@ public class PlayerMovement3D : MonoBehaviour
 
     protected virtual void Update()
     {
+        // 不能移动时直接跳过输入
+        if (!canMove)
+        {
+            _moveDir = Vector3.zero;
+            return;
+        }
+
         float h = Input.GetAxisRaw("Horizontal");
         float v = Input.GetAxisRaw("Vertical");
 
-        // 原始输入
         Vector3 input = new Vector3(h, 0, v).normalized;
-     
         _moveDir = GetCameraRelativeMoveDir(input);
-  
 
         if (Input.GetButtonDown("Jump") && isGrounded)
         {
@@ -77,7 +84,6 @@ public class PlayerMovement3D : MonoBehaviour
         Vector3 dir = r * input.x + f * input.z;
         if (dir.magnitude > 0.1f)
         {
-            // 角色面朝移动方向
             transform.forward = dir;
         }
 
